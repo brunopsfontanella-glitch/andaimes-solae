@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Andaime — Controle Solae</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600&display=swap');
+  :root {
+    --red:#D42B2B;--red-dark:#AA1F1F;--red-bg:#2A0A0A;
+    --black:#0D0D0D;--black2:#161616;--black3:#1F1F1F;--black4:#2A2A2A;
+    --border:#2E2E2E;--border2:#3D3D3D;
+    --text:#F0EFED;--text2:#A0A0A0;--text3:#606060;
+    --info:#4A90D9;--info-bg:#0D1E30;
+    --warn:#D4882B;--warn-bg:#2A1A0A;
+    --success:#3DAA5C;--success-bg:#0A2014;
+    --danger:#D42B2B;--danger-bg:#2A0A0A;
+    --cc-man:#4A90D9;--cc-man-bg:#0D1E30;
+    --cc-eng:#8B5CF6;--cc-eng-bg:#1A0D2E;
+    --cc-ope:#3DAA5C;--cc-ope-bg:#0A2014;
+    --radius:10px;--radius-sm:6px;
+    --font:'Barlow',sans-serif;--display:'Barlow Condensed',sans-serif;
+    --nav-h:64px;--top-h:58px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  body{font-family:var(--font);background:var(--black);color:var(--text);min-height:100vh;overscroll-behavior:none}
+
+  /* TOPBAR */
+  .topbar{position:fixed;top:0;left:0;right:0;z-index:100;height:var(--top-h);background:var(--black);border-bottom:2px solid var(--red);display:flex;align-items:center;gap:12px;padding:0 16px}
+  .topbar-wordmark{font-family:var(--display);font-size:22px;font-weight:800;color:var(--red);text-transform:uppercase}
+  .topbar-divider{width:2px;height:28px;background:var(--border2);flex-shrink:0}
+  .topbar-sub{font-size:11px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.8px;line-height:1.3;flex:1}
+  .topbar-right{display:flex;align-items:center;gap:8px}
+  .sync-dot{width:7px;height:7px;border-radius:50%;background:var(--text3);flex-shrink:0;transition:background 0.3s}
+  .sync-dot.ok{background:var(--success)}.sync-dot.err{background:var(--red)}.sync-dot.loading{background:var(--warn);animation:pulse 1s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+  .topbar-count{background:var(--black3);border:1px solid var(--border);border-radius:4px;padding:3px 9px;font-size:11px;font-weight:600;color:var(--text2);font-family:var(--display);letter-spacing:0.5px}
+
+  .main{padding-top:var(--top-h);padding-bottom:calc(var(--nav-h)+16px);min-height:100vh}
+  .page{display:none}.page.active{display:block}
+
+  /* BOTTOMNAV */
+  .bottomnav{position:fixed;bottom:0;left:0;right:0;z-index:100;height:var(--nav-h);background:var(--black2);border-top:2px solid var(--border);display:flex}
+  .navbtn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;background:none;border:none;cursor:pointer;font-size:10px;font-family:var(--display);font-weight:700;letter-spacing:0.5px;text-transform:uppercase;color:var(--text3);border-top:3px solid transparent}
+  .navbtn svg{width:20px;height:20px;stroke-width:2}
+  .navbtn.active{color:var(--red);border-top-color:var(--red)}
+
+  /* HOME */
+  .home-wrap{padding:16px}
+  .home-hero{background:var(--red);border-radius:var(--radius);padding:20px;margin-bottom:14px;position:relative;overflow:hidden}
+  .home-hero::before{content:'';position:absolute;top:-20px;right:-20px;width:100px;height:100px;border-radius:50%;background:rgba(0,0,0,0.15)}
+  .home-hero-label{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:rgba(255,255,255,0.7);margin-bottom:4px;font-family:var(--display)}
+  .home-hero-title{font-family:var(--display);font-size:24px;font-weight:800;color:#fff;text-transform:uppercase;line-height:1.1;margin-bottom:3px}
+  .home-hero-sub{font-size:12px;color:rgba(255,255,255,0.75)}
+  .home-section-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin:14px 0 8px;font-family:var(--display);display:flex;align-items:center;gap:8px}
+  .home-section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+  .home-cards{display:flex;flex-direction:column;gap:8px;margin-bottom:4px}
+  .home-card{background:var(--black3);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;transition:border-color 0.15s,background 0.15s}
+  .home-card:active{background:var(--black4)}
+  .home-card-icon{width:40px;height:40px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .home-card-icon svg{width:20px;height:20px}
+  .home-card-body{flex:1}
+  .home-card-title{font-family:var(--display);font-size:16px;font-weight:700;letter-spacing:0.3px;text-transform:uppercase;margin-bottom:1px}
+  .home-card-desc{font-size:12px;color:var(--text2);line-height:1.3}
+  .home-card-arrow{font-size:18px;color:var(--text3);flex-shrink:0}
+  .home-card.cc-man{border-left:3px solid var(--cc-man)}
+  .home-card.cc-eng{border-left:3px solid var(--cc-eng)}
+  .home-card.cc-ope{border-left:3px solid var(--cc-ope)}
+  .home-card.cc-man .home-card-icon{background:var(--cc-man-bg)}
+  .home-card.cc-eng .home-card-icon{background:var(--cc-eng-bg)}
+  .home-card.cc-ope .home-card-icon{background:var(--cc-ope-bg)}
+  .home-card.cc-man .home-card-icon svg{stroke:var(--cc-man)}
+  .home-card.cc-eng .home-card-icon svg{stroke:var(--cc-eng)}
+  .home-card.cc-ope .home-card-icon svg{stroke:var(--cc-ope)}
+  .home-card.cc-man .home-card-title{color:var(--cc-man)}
+  .home-card.cc-eng .home-card-title{color:var(--cc-eng)}
+  .home-card.cc-ope .home-card-title{color:var(--cc-ope)}
+  .home-card.edit-card{border-left:3px solid var(--text3)}
+  .home-card.edit-card .home-card-icon{background:var(--black4)}
+  .home-card.edit-card .home-card-icon svg{stroke:var(--text2)}
+  .home-stats{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px}
+  .home-stat{background:var(--black3);border:1px solid var(--border);border-radius:var(--radius);padding:10px;text-align:center}
+  .home-stat-val{font-size:22px;font-weight:800;font-family:var(--display)}
+  .home-stat-label{font-size:10px;color:var(--text3);margin-top:1px;font-family:var(--display);font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+  .home-stat.man .home-stat-val{color:var(--cc-man)}
+  .home-stat.eng .home-stat-val{color:var(--cc-eng)}
+  .home-stat.ope .home-stat-val{color:var(--cc-ope)}
+
+  /* FORM */
+  .form-wrap{padding:14px 16px}
+  .form-banner{display:flex;align-items:center;gap:10px;border-radius:var(--radius-sm);padding:11px 14px;margin-bottom:14px;font-size:13px;font-weight:600;font-family:var(--display);letter-spacing:0.3px;text-transform:uppercase}
+  .form-banner svg{width:16px;height:16px;flex-shrink:0}
+  .form-banner.new-man{background:var(--cc-man-bg);border:1px solid var(--cc-man);color:var(--cc-man)}
+  .form-banner.new-man svg{stroke:var(--cc-man)}
+  .form-banner.new-eng{background:var(--cc-eng-bg);border:1px solid var(--cc-eng);color:var(--cc-eng)}
+  .form-banner.new-eng svg{stroke:var(--cc-eng)}
+  .form-banner.new-ope{background:var(--cc-ope-bg);border:1px solid var(--cc-ope);color:var(--cc-ope)}
+  .form-banner.new-ope svg{stroke:var(--cc-ope)}
+  .form-banner.edit{background:var(--info-bg);border:1px solid var(--info);color:var(--info)}
+  .form-banner.edit svg{stroke:var(--info)}
+  .sec-label{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--red);margin:18px 0 10px;font-family:var(--display);display:flex;align-items:center;gap:8px}
+  .sec-label::after{content:'';flex:1;height:1px;background:var(--border)}
+  .sec-label:first-child{margin-top:4px}
+  .field{margin-bottom:10px}
+  .field label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:5px;text-transform:uppercase;letter-spacing:0.5px;font-family:var(--display)}
+  .field input,.field select,.field textarea{width:100%;padding:12px 14px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:15px;font-family:var(--font);background:var(--black3);color:var(--text);-webkit-appearance:none;appearance:none;transition:border-color 0.15s}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--red);background:var(--black4)}
+  .field select option{background:var(--black3)}
+  .field .readonly{background:var(--black4);color:var(--red);font-family:var(--display);font-size:18px;font-weight:700;letter-spacing:1px;border-color:var(--border2)}
+  .field textarea{resize:none}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+  .photo-area{border:1px dashed var(--border2);border-radius:var(--radius);background:var(--black3);overflow:hidden}
+  .photo-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:24px 16px;cursor:pointer}
+  .photo-placeholder svg{width:28px;height:28px;stroke:var(--text3);stroke-width:1.5}
+  .photo-placeholder span{font-size:13px;color:var(--text2);text-align:center}
+  .photo-placeholder small{font-size:11px;color:var(--text3)}
+  #photo-input{display:none}
+  .photo-preview{position:relative}
+  .photo-preview img{width:100%;display:block;max-height:200px;object-fit:cover}
+  .photo-remove{position:absolute;top:8px;right:8px;background:rgba(0,0,0,0.7);border:1px solid rgba(255,255,255,0.2);border-radius:99px;color:white;font-size:12px;padding:4px 10px;cursor:pointer;font-family:var(--font)}
+  .btn-primary{width:100%;padding:15px;border-radius:var(--radius);font-size:15px;font-weight:700;font-family:var(--display);letter-spacing:0.5px;text-transform:uppercase;background:var(--red);color:#fff;border:none;cursor:pointer;margin-top:10px;display:flex;align-items:center;justify-content:center;gap:8px;transition:background 0.15s}
+  .btn-primary:active{background:var(--red-dark)}
+  .btn-primary:disabled{opacity:0.5;cursor:not-allowed}
+  .btn-primary.edit-mode{background:var(--info)}
+  .btn-ghost{width:100%;padding:13px;border-radius:var(--radius);font-size:13px;font-weight:700;font-family:var(--display);letter-spacing:0.5px;text-transform:uppercase;background:none;color:var(--text2);border:1px solid var(--border);cursor:pointer;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px}
+  .btn-ghost:active{background:var(--black3)}
+  .btn-danger-ghost{width:100%;padding:13px;border-radius:var(--radius);font-size:13px;font-weight:700;font-family:var(--display);letter-spacing:0.5px;text-transform:uppercase;background:none;color:var(--red);border:1px solid var(--border);cursor:pointer;margin-top:8px;display:flex;align-items:center;justify-content:center;gap:8px}
+
+  /* TOAST */
+  .toast{position:fixed;top:calc(var(--top-h)+10px);left:50%;transform:translateX(-50%);padding:10px 20px;border-radius:4px;font-size:13px;font-weight:700;font-family:var(--display);letter-spacing:0.5px;text-transform:uppercase;display:none;z-index:999;white-space:nowrap;animation:fadeup 0.2s ease}
+  .toast.ok{background:var(--success);color:#fff}
+  .toast.err{background:var(--red);color:#fff}
+  @keyframes fadeup{from{opacity:0;transform:translateX(-50%) translateY(6px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+  /* LISTA */
+  .lista-wrap{padding:12px 16px}
+  .search-box{display:flex;align-items:center;gap:10px;background:var(--black3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:11px 14px;margin-bottom:10px}
+  .search-box svg{width:16px;height:16px;stroke:var(--text3);flex-shrink:0}
+  .search-box input{border:none;background:none;font-size:14px;font-family:var(--font);color:var(--text);width:100%}
+  .search-box input::placeholder{color:var(--text3)}
+  .search-box input:focus{outline:none}
+  .chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;margin-bottom:8px;scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chip{padding:6px 14px;border-radius:4px;font-size:12px;font-weight:700;font-family:var(--display);letter-spacing:0.5px;text-transform:uppercase;border:1px solid var(--border);background:var(--black3);color:var(--text2);cursor:pointer;white-space:nowrap;flex-shrink:0;transition:all 0.15s}
+  .chip.active{background:var(--red);color:#fff;border-color:var(--red)}
+  .chip.cc-man.active{background:var(--cc-man);border-color:var(--cc-man)}
+  .chip.cc-eng.active{background:var(--cc-eng);border-color:var(--cc-eng)}
+  .chip.cc-ope.active{background:var(--cc-ope);border-color:var(--cc-ope)}
+  .filter-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+  .filter-row select{padding:9px 12px;border:1px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:var(--font);background:var(--black3);color:var(--text);-webkit-appearance:none}
+  .count-info{font-size:11px;color:var(--text3);margin-bottom:10px;font-family:var(--display);font-weight:600;letter-spacing:0.5px;text-transform:uppercase}
+  .card{background:var(--black3);border:1px solid var(--border);border-left:3px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:8px}
+  .card.sit-MONTADO{border-left-color:var(--info)}
+  .card.sit-DESMONTADO{border-left-color:var(--text3)}
+  .card.sit-PENDENTE{border-left-color:var(--warn)}
+  .card.sit-FINALIZADO{border-left-color:var(--success)}
+  .card-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:8px}
+  .card-ssa{font-family:var(--display);font-size:10px;font-weight:700;color:var(--text3);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:2px;display:flex;align-items:center;gap:6px}
+  .cc-badge{font-size:9px;font-weight:700;padding:1px 6px;border-radius:3px;font-family:var(--display);letter-spacing:0.5px;text-transform:uppercase}
+  .cc-badge.man{background:var(--cc-man-bg);color:var(--cc-man);border:1px solid var(--cc-man)}
+  .cc-badge.eng{background:var(--cc-eng-bg);color:var(--cc-eng);border:1px solid var(--cc-eng)}
+  .cc-badge.ope{background:var(--cc-ope-bg);color:var(--cc-ope);border:1px solid var(--cc-ope)}
+  .card-tag{font-size:15px;font-weight:600;color:var(--text);flex:1;line-height:1.3}
+  .badge{padding:3px 8px;border-radius:3px;font-size:10px;font-weight:700;flex-shrink:0;font-family:var(--display);letter-spacing:0.5px;text-transform:uppercase}
+  .badge-MONTADO{background:var(--info-bg);color:var(--info);border:1px solid var(--info)}
+  .badge-DESMONTADO{background:var(--black4);color:var(--text2);border:1px solid var(--border)}
+  .badge-PENDENTE{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn)}
+  .badge-FINALIZADO{background:var(--success-bg);color:var(--success);border:1px solid var(--success)}
+  .card-meta{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+  .meta-pill{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2);background:var(--black4);border:1px solid var(--border);border-radius:3px;padding:3px 7px;font-family:var(--display);font-weight:600;letter-spacing:0.3px}
+  .meta-pill svg{width:11px;height:11px;stroke:var(--text3);flex-shrink:0}
+  .card-dims{display:flex;gap:12px;font-size:12px;color:var(--text3);font-family:var(--display);font-weight:600;margin-bottom:8px}
+  .card-dims b{color:var(--red)}
+  .card-photo{margin:8px 0;border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--border)}
+  .card-photo img{width:100%;max-height:140px;object-fit:cover;display:block}
+  .card-foot{display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid var(--border);margin-top:4px;gap:6px}
+  .card-date{font-size:11px;color:var(--text3);font-family:var(--display);font-weight:600;flex:1}
+  .card-obs{font-size:12px;color:var(--text2);margin-top:8px;line-height:1.5;padding-top:8px;border-top:1px solid var(--border)}
+  .btn-del{background:none;border:1px solid var(--border);cursor:pointer;padding:6px 8px;font-size:11px;color:var(--red);font-family:var(--display);display:flex;align-items:center;gap:3px;border-radius:3px;font-weight:700}
+  .btn-del svg{width:13px;height:13px;stroke:var(--red)}
+  .btn-edit{background:none;border:1px solid var(--info);cursor:pointer;padding:6px 12px;font-size:11px;color:var(--info);font-family:var(--display);display:flex;align-items:center;gap:4px;border-radius:3px;font-weight:700;text-transform:uppercase}
+  .btn-edit svg{width:13px;height:13px;stroke:var(--info)}
+  .empty{text-align:center;padding:3rem 1rem;color:var(--text3);font-size:13px;line-height:1.8}
+  .empty svg{width:36px;height:36px;stroke:var(--border2);display:block;margin:0 auto 12px}
+
+  /* RESUMO */
+  .resumo-wrap{padding:16px}
+  .metrics-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+  .metric{background:var(--black3);border:1px solid var(--border);border-radius:var(--radius);padding:14px}
+  .metric-label{font-size:10px;color:var(--text3);margin-bottom:4px;font-family:var(--display);font-weight:700;text-transform:uppercase;letter-spacing:0.8px}
+  .metric-value{font-size:28px;font-weight:800;color:var(--text);font-family:var(--display)}
+  .metric-unit{font-size:10px;color:var(--text3);margin-top:2px;font-family:var(--display);font-weight:600}
+  .metric.red .metric-value{color:var(--red)}
+  .metric.info .metric-value{color:var(--info)}
+  .metric.warn .metric-value{color:var(--warn)}
+  .metric.success .metric-value{color:var(--success)}
+  .metric.man .metric-value{color:var(--cc-man)}
+  .metric.eng .metric-value{color:var(--cc-eng)}
+  .metric.ope .metric-value{color:var(--cc-ope)}
+  .cc-section{background:var(--black3);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin-bottom:10px}
+  .cc-section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .cc-section-title{font-family:var(--display);font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px}
+  .cc-section-title.man{color:var(--cc-man)}
+  .cc-section-title.eng{color:var(--cc-eng)}
+  .cc-section-title.ope{color:var(--cc-ope)}
+  .cc-section-count{font-size:11px;color:var(--text3);font-family:var(--display);font-weight:600}
+  .cc-mini-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+  .cc-mini{background:var(--black4);border-radius:var(--radius-sm);padding:8px;text-align:center}
+  .cc-mini-val{font-size:18px;font-weight:800;font-family:var(--display)}
+  .cc-mini-label{font-size:9px;color:var(--text3);font-family:var(--display);font-weight:600;text-transform:uppercase;letter-spacing:0.4px;margin-top:1px}
+  .planta-filter-row{display:flex;gap:6px;margin-bottom:10px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+  .planta-filter-row::-webkit-scrollbar{display:none}
+  .planta-chip{padding:5px 12px;border-radius:4px;font-size:11px;font-weight:700;font-family:var(--display);letter-spacing:0.5px;text-transform:uppercase;border:1px solid var(--border);background:var(--black4);color:var(--text2);cursor:pointer;white-space:nowrap;flex-shrink:0}
+  .planta-chip.active{background:var(--red);color:#fff;border-color:var(--red)}
+  .planta-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)}
+  .planta-row:last-child{border-bottom:none;padding-bottom:0}
+  .planta-row-name{font-size:13px;font-weight:600;font-family:var(--display);text-transform:uppercase;letter-spacing:0.3px}
+  .planta-row-stats{display:flex;gap:10px;font-size:11px;font-family:var(--display);font-weight:600;color:var(--text2)}
+  .planta-bar-wrap{margin-top:6px}
+  .planta-bar{height:2px;background:var(--black4);border-radius:2px;overflow:hidden}
+  .planta-bar-fill{height:100%;background:var(--red);border-radius:2px}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="topbar-wordmark">ANDAIME</div>
+  <div class="topbar-divider"></div>
+  <div class="topbar-sub">Controle<br>Solae do Brasil</div>
+  <div class="topbar-right">
+    <div class="sync-dot" id="sync-dot"></div>
+    <div class="topbar-count" id="topbar-count">0 REG</div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<div class="main">
+
+  <!-- HOME -->
+  <div id="p-home" class="page active">
+    <div class="home-wrap">
+      <div class="home-hero">
+        <div class="home-hero-label">Sistema de Gestão</div>
+        <div class="home-hero-title">O que você<br>vai fazer?</div>
+        <div class="home-hero-sub">Solae do Brasil — Andaime Projetos</div>
+      </div>
+
+      <div class="home-section-label">Nova SSA</div>
+      <div class="home-cards">
+        <div class="home-card cc-man" onclick="irParaNovo('MAN')">
+          <div class="home-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></div>
+          <div class="home-card-body">
+            <div class="home-card-title">Nova SSA Manutenção</div>
+            <div class="home-card-desc">Lançar andaime para manutenção</div>
+          </div>
+          <div class="home-card-arrow">›</div>
+        </div>
+        <div class="home-card cc-eng" onclick="irParaNovo('ENG')">
+          <div class="home-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+          <div class="home-card-body">
+            <div class="home-card-title">Nova SSA Engenharia</div>
+            <div class="home-card-desc">Lançar andaime para engenharia</div>
+          </div>
+          <div class="home-card-arrow">›</div>
+        </div>
+        <div class="home-card cc-ope" onclick="irParaNovo('OPE')">
+          <div class="home-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <div class="home-card-body">
+            <div class="home-card-title">Nova SSA Operação</div>
+            <div class="home-card-desc">Lançar andaime para operação</div>
+          </div>
+          <div class="home-card-arrow">›</div>
+        </div>
+      </div>
+
+      <div class="home-section-label">Editar</div>
+      <div class="home-cards">
+        <div class="home-card edit-card" onclick="irParaEdicao()">
+          <div class="home-card-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div>
+          <div class="home-card-body">
+            <div class="home-card-title">Editar SSA</div>
+            <div class="home-card-desc">Buscar e atualizar registro existente</div>
+          </div>
+          <div class="home-card-arrow">›</div>
+        </div>
+      </div>
+
+      <div class="home-stats">
+        <div class="home-stat man"><div class="home-stat-val" id="hs-man">0</div><div class="home-stat-label">Manut.</div></div>
+        <div class="home-stat eng"><div class="home-stat-val" id="hs-eng">0</div><div class="home-stat-label">Eng.</div></div>
+        <div class="home-stat ope"><div class="home-stat-val" id="hs-ope">0</div><div class="home-stat-label">Oper.</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOVO / EDITAR -->
+  <div id="p-novo" class="page">
+    <div class="form-wrap">
+      <div class="form-banner" id="form-banner">...</div>
+      <div class="sec-label">Número da SSA</div>
+      <div class="field"><label>SSA Nº</label><input type="text" id="ssa" class="readonly" readonly placeholder="Gerado automaticamente"></div>
+      <div class="field"><label>Nº da OS</label><input type="text" id="os" placeholder="Opcional" maxlength="50"></div>
+      <div class="sec-label">Identificação</div>
+      <div class="row2">
+        <div class="field"><label>Planta</label>
+          <select id="planta">
+            <option value="">Selecionar...</option>
+            <option>CALDEIRA</option><option>DELTA</option><option>DAMROW</option><option>DANROW</option>
+            <option>ETA</option><option>ETE</option><option>EXTRAÇÃO</option><option>BLENDAGEM</option>
+            <option>PREPARAÇÃO</option><option>TVP</option><option>CCM-EXTRAÇÃO</option>
+            <option>DEPOSITO DE INFLAMÁVEIS</option><option>OFICINA</option><option>PSV</option><option>OUTRO</option>
+          </select>
+        </div>
+        <div class="field"><label>Responsável</label><input type="text" id="responsavel" placeholder="Nome do técnico" maxlength="80"></div>
+      </div>
+      <div class="field"><label>TAG / Equipamento</label><input type="text" id="tag" placeholder="Ex: PSV-013, XV5355..." maxlength="100"></div>
+      <div class="field"><label>Característica</label>
+        <select id="caracteristica">
+          <option value="">Selecionar...</option>
+          <option>ANDAIME PLATAFORMA</option><option>PAU DE CARGA</option><option>GUARDA CORPO</option>
+          <option>ANDAIME DE RODÍZIO</option><option>ANDAIME + PAU DE CARGA</option>
+          <option>BANCADA</option><option>APOIO</option><option>APOIO-ADEQUAÇÃO</option>
+        </select>
+      </div>
+      <div class="sec-label">Dimensões (m)</div>
+      <div class="row3">
+        <div class="field"><label>L (m)</label><input type="number" id="largura" step="0.01" min="0" max="999" placeholder="0,00" inputmode="decimal" oninput="calcDims()"></div>
+        <div class="field"><label>C (m)</label><input type="number" id="comprimento" step="0.01" min="0" max="999" placeholder="0,00" inputmode="decimal" oninput="calcDims()"></div>
+        <div class="field"><label>A (m)</label><input type="number" id="altura" step="0.01" min="0" max="999" placeholder="0,00" inputmode="decimal" oninput="calcDims()"></div>
+      </div>
+      <div class="row3">
+        <div class="field"><label>Plt extra</label><input type="number" id="plt_extra" step="0.01" min="0" max="9999" placeholder="0,00" inputmode="decimal" oninput="calcDims()"></div>
+        <div class="field"><label>ML</label><input type="number" id="ml" step="0.01" min="0" max="9999" placeholder="0,00" inputmode="decimal"></div>
+        <div class="field"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>M² (L×C + Plt)</label><input type="text" id="m2" class="readonly" readonly placeholder="Auto"></div>
+        <div class="field"><label>M³ (L×C×A)</label><input type="text" id="m3" class="readonly" readonly placeholder="Auto"></div>
+      </div>
+      <div class="sec-label">Datas e situação</div>
+      <div class="row2">
+        <div class="field"><label>Data solicitação</label><input type="date" id="data_solicitacao"></div>
+        <div class="field"><label>Data montagem</label><input type="date" id="data_montagem"></div>
+      </div>
+      <div class="row2">
+        <div class="field"><label>Baixa de locação</label><input type="date" id="data_baixa"></div>
+        <div class="field"><label>Data desmontagem</label><input type="date" id="data_desmontagem"></div>
+      </div>
+      <div class="field"><label>Situação</label>
+        <select id="situacao">
+          <option value="MONTADO">MONTADO</option><option value="DESMONTADO">DESMONTADO</option>
+          <option value="PENDENTE">PENDENTE</option><option value="FINALIZADO">FINALIZADO</option>
+        </select>
+      </div>
+      <div class="sec-label">Foto</div>
+      <div class="photo-area">
+        <div class="photo-placeholder" id="photo-placeholder" onclick="document.getElementById('photo-input').click()">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M23 19C23 19.5304 22.7893 20.0391 22.4142 20.4142C22.0391 20.7893 21.5304 21 21 21H3C2.46957 21 1.96086 20.7893 1.58579 20.4142C1.21071 20.0391 1 19.5304 1 19V8C1 7.46957 1.21071 6.96086 1.58579 6.58579C1.96086 6.21071 2.46957 6 3 6H7L9 3H15L17 6H21C21.5304 6 22.0391 6.21071 22.4142 6.58579C22.7893 6.96086 23 7.46957 23 8V19Z" stroke="#606060" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="13" r="4" stroke="#606060" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Tirar foto ou escolher da galeria</span>
+          <small>Máx. 1MB</small>
+        </div>
+        <div class="photo-preview" id="photo-preview" style="display:none">
+          <img id="photo-img" src="" alt="Foto">
+          <button class="photo-remove" onclick="removerFoto()">✕ Remover</button>
+        </div>
+      </div>
+      <input type="file" id="photo-input" accept="image/*" capture="environment" onchange="carregarFoto(this)">
+      <div class="sec-label">Observações</div>
+      <div class="field"><textarea id="obs" rows="3" placeholder="Cobrar locação, área quente, horário extraordinário..." maxlength="500"></textarea></div>
+      <button class="btn-primary" id="btn-salvar" onclick="App.salvar()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Salvar e sincronizar
+      </button>
+      <button class="btn-danger-ghost" onclick="voltarHome()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        Cancelar e voltar
+      </button>
+    </div>
+  </div>
+
+  <!-- LISTA -->
+  <div id="p-lista" class="page">
+    <div class="lista-wrap">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+        <input type="text" id="busca" placeholder="SSA, TAG, planta, responsável..." oninput="UI.renderLista()">
+      </div>
+      <!-- Filtro por centro de custo -->
+      <div class="chips" id="chips-cc">
+        <button class="chip active" onclick="setChipCC(this,'')">Todos CC</button>
+        <button class="chip cc-man" onclick="setChipCC(this,'MAN')">Manutenção</button>
+        <button class="chip cc-eng" onclick="setChipCC(this,'ENG')">Engenharia</button>
+        <button class="chip cc-ope" onclick="setChipCC(this,'OPE')">Operação</button>
+      </div>
+      <!-- Filtro por situação -->
+      <div class="chips" id="chips-sit">
+        <button class="chip active" onclick="setChipSit(this,'')">Todas sit.</button>
+        <button class="chip" onclick="setChipSit(this,'MONTADO')">Montado</button>
+        <button class="chip" onclick="setChipSit(this,'DESMONTADO')">Desmontado</button>
+        <button class="chip" onclick="setChipSit(this,'PENDENTE')">Pendente</button>
+        <button class="chip" onclick="setChipSit(this,'FINALIZADO')">Finalizado</button>
+      </div>
+      <div class="filter-row">
+        <select id="f-planta" onchange="UI.renderLista()">
+          <option value="">Todas as plantas</option>
+          <option>CALDEIRA</option><option>DELTA</option><option>DAMROW</option><option>DANROW</option>
+          <option>ETA</option><option>ETE</option><option>EXTRAÇÃO</option><option>BLENDAGEM</option>
+          <option>PREPARAÇÃO</option><option>TVP</option><option>CCM-EXTRAÇÃO</option>
+          <option>DEPOSITO DE INFLAMÁVEIS</option><option>OFICINA</option><option>PSV</option><option>OUTRO</option>
+        </select>
+        <select id="f-resp" onchange="UI.renderLista()">
+          <option value="">Todos responsáveis</option>
+        </select>
+      </div>
+      <div class="count-info" id="count-info"></div>
+      <div id="lista-container"></div>
+      <button class="btn-ghost" onclick="App.exportarExcel()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportar Excel
+      </button>
+    </div>
+  </div>
+
+  <!-- RESUMO -->
+  <div id="p-resumo" class="page">
+    <div class="resumo-wrap">
+      <div class="sec-label" style="margin-top:4px">Totais gerais</div>
+      <div class="metrics-grid">
+        <div class="metric"><div class="metric-label">Total SSA</div><div class="metric-value" id="s-total">0</div></div>
+        <div class="metric info"><div class="metric-label">Montados</div><div class="metric-value" id="s-montados">0</div></div>
+        <div class="metric warn"><div class="metric-label">Pendentes</div><div class="metric-value" id="s-pendentes">0</div></div>
+        <div class="metric success"><div class="metric-label">Desmontados</div><div class="metric-value" id="s-desmontados">0</div></div>
+      </div>
+      <div class="metrics-grid">
+        <div class="metric red"><div class="metric-label">M² Total</div><div class="metric-value" id="s-m2">0</div><div class="metric-unit">metros quadrados</div></div>
+        <div class="metric"><div class="metric-label">M³ Total</div><div class="metric-value" id="s-m3">0</div><div class="metric-unit">metros cúbicos</div></div>
+        <div class="metric"><div class="metric-label">ML Total</div><div class="metric-value" id="s-ml">0</div><div class="metric-unit">metros lineares</div></div>
+        <div class="metric"><div class="metric-label">Técnicos</div><div class="metric-value" id="s-resp">0</div><div class="metric-unit">responsáveis</div></div>
+      </div>
+
+      <!-- RESUMO POR CENTRO DE CUSTO -->
+      <div class="sec-label">Por centro de custo</div>
+
+      <!-- Filtro de planta para os CCs -->
+      <div class="planta-filter-row" id="planta-filter-row">
+        <button class="planta-chip active" onclick="setFiltroPlantaResumo('',this)">Todas plantas</button>
+      </div>
+
+      <div id="cc-resumo-container"></div>
+
+      <button class="btn-ghost" onclick="App.exportarExcel()" style="margin-top:8px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportar Excel
+      </button>
+      <button class="btn-danger-ghost" onclick="App.limparTudo()" style="margin-top:4px">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+        Apagar registros locais
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<nav class="bottomnav">
+  <button class="navbtn active" id="nav-home" onclick="navTo('home')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Início
+  </button>
+  <button class="navbtn" id="nav-lista" onclick="navTo('lista')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>Registros
+  </button>
+  <button class="navbtn" id="nav-resumo" onclick="navTo('resumo')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Resumo
+  </button>
+</nav>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>
+// ─── CONFIGURAÇÃO ─────────────────────────────────────────────────
+const CONFIG = {
+  CC: {
+    MAN: { label: 'Manutenção', key: 'MAN', cls: 'man', sheetId: '1RxhZv9emvYXh358SHYf4_Rs4bYfE6TVhBrL-fD3HRp4' },
+    ENG: { label: 'Engenharia', key: 'ENG', cls: 'eng', sheetId: '1aM1nbIowIPwUWf0UFQsULfNs2dNFh-YAKvPgr4W1z1E' },
+    OPE: { label: 'Operação',   key: 'OPE', cls: 'ope', sheetId: '1WSTxQsp31HPCxrqu7U_01aGaTUMShNoumZf2plWh-uU' },
+  },
+  SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbx0vgplLskMwjDLSn_k2F-wSj7Ck9bO5_sxUu-q82GAQzo5XuCgE2JJuTgT1kf27Ie9vQ/exec',
+  STORAGE_KEY: 'andaimes_solae_v2',
+  SSA_KEYS: { MAN: 'ssa_counter_man', ENG: 'ssa_counter_eng', OPE: 'ssa_counter_ope' },
+  FOTO_MAX_BYTES: 1024 * 1024,
+  STORAGE_WARN_BYTES: 4 * 1024 * 1024,
+  DIM_MAX: 999,
+};
+
+// ─── UTILITÁRIOS ──────────────────────────────────────────────────
+const Utils = {
+  sanitize(str) {
+    const div = document.createElement('div');
+    div.appendChild(document.createTextNode(str || ''));
+    return div.innerHTML;
+  },
+  uuid() {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+      const r = Math.random() * 16 | 0;
+      return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+  },
+  formatDate(d) {
+    if (!d) return '—';
+    const p = d.split('-');
+    return `${p[2]}/${p[1]}/${p[0]}`;
+  },
+  validarDimensao(val, nome) {
+    if (!val || val === '') return true;
+    const n = parseFloat(val);
+    if (isNaN(n) || n < 0 || n > CONFIG.DIM_MAX) {
+      UI.toast(`VALOR INVÁLIDO: ${nome}`, 'err');
+      return false;
+    }
+    return true;
+  },
+};
+
+// ─── PERSISTÊNCIA LOCAL ───────────────────────────────────────────
+const Storage = {
+  load() {
+    try { return JSON.parse(localStorage.getItem(CONFIG.STORAGE_KEY) || '[]'); }
+    catch (e) { UI.toast('ERRO AO LER DADOS LOCAIS', 'err'); return []; }
+  },
+  save(regs) {
+    try {
+      localStorage.setItem(CONFIG.STORAGE_KEY, JSON.stringify(regs));
+      const size = new Blob([localStorage.getItem(CONFIG.STORAGE_KEY)]).size;
+      if (size > CONFIG.STORAGE_WARN_BYTES) UI.toast('ARMAZENAMENTO QUASE CHEIO — EXPORTE OS DADOS', 'err');
+      return true;
+    } catch (e) {
+      UI.toast(e.name === 'QuotaExceededError' ? 'ARMAZENAMENTO CHEIO — EXPORTE E LIMPE' : 'ERRO AO SALVAR', 'err');
+      return false;
+    }
+  },
+  proximaSSA(cc) {
+    const key = CONFIG.SSA_KEYS[cc];
+    const regsCC = App.regs.filter(r => r.cc === cc);
+    let max = 0;
+    regsCC.forEach(r => { const n = parseInt(r.ssa); if (!isNaN(n) && n > max) max = n; });
+    const salvo = parseInt(localStorage.getItem(key) || '0');
+    return Math.max(max, salvo) + 1;
+  },
+  saveSSACounter(cc, n) {
+    try { localStorage.setItem(CONFIG.SSA_KEYS[cc], n); } catch (_) {}
+  },
+};
+
+// ─── GOOGLE SHEETS ────────────────────────────────────────────────
+const Sheets = {
+  async _post(payload) {
+    const res = await fetch(CONFIG.SCRIPT_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify(payload),
+    });
+    const data = await res.json();
+    return data.status === 'ok';
+  },
+
+  async loadCC(cc) {
+    const res = await fetch(`${CONFIG.SCRIPT_URL}?cc=${cc}&sheetId=${CONFIG.CC[cc].sheetId}`);
+    const rows = await res.json();
+    if (!Array.isArray(rows) || rows.length === 0) return [];
+    return rows.map(row => ({
+      id:               String(row['id'] || Utils.uuid()),
+      cc,
+      ssa:              String(row['SSA Nº'] || ''),
+      os:               String(row['OS'] || ''),
+      planta:           String(row['Planta'] || ''),
+      tag:              String(row['TAG'] || ''),
+      caracteristica:   String(row['Característica'] || ''),
+      responsavel:      String(row['Responsável'] || ''),
+      l: String(row['L']||''), c: String(row['C']||''), a: String(row['A']||''),
+      plt_extra:        String(row['Plt Extra']||''),
+      m2: String(row['M²']||''), m3: String(row['M³']||''), ml: String(row['ML']||''),
+      data_solicitacao: String(row['Data Solicitação']||''),
+      data_montagem:    String(row['Data Montagem']||''),
+      data_baixa:       String(row['Baixa Locação']||''),
+      data_desmontagem: String(row['Data Desmontagem']||''),
+      situacao:         String(row['Situação']||'PENDENTE'),
+      obs:              String(row['OBS']||''),
+      foto: '', sincronizado: true,
+    }));
+  },
+
+  async insert(reg) {
+    UI.setSyncDot('loading');
+    try {
+      const ok = await this._post(Object.assign({}, reg, {
+        _action: 'insert',
+        sheetId: CONFIG.CC[reg.cc].sheetId,
+      }));
+      UI.setSyncDot(ok ? 'ok' : 'err');
+      return ok;
+    } catch (e) { UI.setSyncDot('err'); return false; }
+  },
+
+  async update(reg) {
+    UI.setSyncDot('loading');
+    try {
+      const ok = await this._post(Object.assign({}, reg, {
+        _action: 'update',
+        sheetId: CONFIG.CC[reg.cc].sheetId,
+      }));
+      UI.setSyncDot(ok ? 'ok' : 'err');
+      return ok;
+    } catch (e) { UI.setSyncDot('err'); return false; }
+  },
+};
+
+// ─── UI ───────────────────────────────────────────────────────────
+const UI = {
+  setSyncDot(s) { document.getElementById('sync-dot').className = 'sync-dot ' + s; },
+
+  toast(msg, tipo) {
+    const t = document.getElementById('toast');
+    t.textContent = msg; t.className = 'toast ' + (tipo || 'ok');
+    t.style.display = 'block';
+    clearTimeout(window._tt);
+    window._tt = setTimeout(() => t.style.display = 'none', 3000);
+  },
+
+  atualizarContador(n) { document.getElementById('topbar-count').textContent = n + ' REG'; },
+
+  atualizarHome(regs) {
+    document.getElementById('hs-man').textContent = regs.filter(r => r.cc === 'MAN').length;
+    document.getElementById('hs-eng').textContent = regs.filter(r => r.cc === 'ENG').length;
+    document.getElementById('hs-ope').textContent = regs.filter(r => r.cc === 'OPE').length;
+  },
+
+  atualizarFiltroResp(regs) {
+    const sel = document.getElementById('f-resp');
+    const cur = sel.value;
+    const rs = [...new Set(regs.map(r => r.responsavel).filter(Boolean))].sort();
+    sel.innerHTML = '<option value="">Todos responsáveis</option>' +
+      rs.map(r => `<option${r === cur ? ' selected' : ''}>${Utils.sanitize(r)}</option>`).join('');
+  },
+
+  filtrar(regs) {
+    const busca = (document.getElementById('busca').value || '').toLowerCase();
+    const fP = document.getElementById('f-planta').value;
+    const fR = document.getElementById('f-resp').value;
+    return regs.filter(r => {
+      if (App.filtroCC && r.cc !== App.filtroCC) return false;
+      if (App.filtroSit && r.situacao !== App.filtroSit) return false;
+      if (fP && r.planta !== fP) return false;
+      if (fR && r.responsavel !== fR) return false;
+      if (busca) {
+        const txt = [r.tag, r.planta, r.responsavel, r.ssa, r.caracteristica, r.obs, CONFIG.CC[r.cc]?.label]
+          .join(' ').toLowerCase();
+        if (!txt.includes(busca)) return false;
+      }
+      return true;
+    });
+  },
+
+  renderLista() {
+    const lista = this.filtrar(App.regs);
+    document.getElementById('count-info').textContent = lista.length + ' REGISTRO(S)';
+    const c = document.getElementById('lista-container');
+    if (!lista.length) {
+      c.innerHTML = `<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/><line x1="8" y1="11" x2="14" y2="11"/></svg>Nenhum registro encontrado.</div>`;
+      return;
+    }
+    c.innerHTML = lista.map(r => {
+      const tag = Utils.sanitize(r.tag || '(sem TAG)');
+      const ssa = Utils.sanitize(r.ssa || '—');
+      const planta = Utils.sanitize(r.planta || '');
+      const resp = Utils.sanitize(r.responsavel || '');
+      const carac = Utils.sanitize(r.caracteristica || '');
+      const obs = Utils.sanitize(r.obs || '');
+      const sit = r.situacao || 'PENDENTE';
+      const id = Utils.sanitize(String(r.id));
+      const ccInfo = CONFIG.CC[r.cc] || {};
+      return `
+        <div class="card sit-${sit}">
+          <div class="card-head">
+            <div>
+              <div class="card-ssa">SSA Nº ${ssa} <span class="cc-badge ${ccInfo.cls}">${ccInfo.label||r.cc}</span></div>
+              <div class="card-tag">${tag}</div>
+            </div>
+            <span class="badge badge-${sit}">${sit}</span>
+          </div>
+          <div class="card-meta">
+            ${planta ? `<span class="meta-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${planta}</span>` : ''}
+            ${resp ? `<span class="meta-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>${resp}</span>` : ''}
+            ${carac ? `<span class="meta-pill">${carac}</span>` : ''}
+            ${r.sincronizado === false ? `<span class="meta-pill" style="color:var(--warn);border-color:var(--warn)">⚠ SYNC</span>` : ''}
+          </div>
+          ${(r.m2&&r.m2!='0')||(r.m3&&r.m3!='0')||(r.ml&&r.ml!='0') ? `
+          <div class="card-dims">
+            ${r.m2&&r.m2!='0'?`<span><b>M²</b> ${parseFloat(r.m2).toFixed(2)}</span>`:''}
+            ${r.m3&&r.m3!='0'?`<span><b>M³</b> ${parseFloat(r.m3).toFixed(2)}</span>`:''}
+            ${r.ml&&r.ml!='0'?`<span><b>ML</b> ${parseFloat(r.ml).toFixed(2)}</span>`:''}
+          </div>` : ''}
+          ${r.foto ? `<div class="card-photo"><img src="${r.foto}" alt="Foto"></div>` : ''}
+          ${obs ? `<div class="card-obs">${obs}</div>` : ''}
+          <div class="card-foot">
+            <span class="card-date">${r.data_solicitacao ? '📋 '+Utils.formatDate(r.data_solicitacao)+' · ' : ''}📅 ${Utils.formatDate(r.data_montagem)}${r.data_desmontagem ? ' → '+Utils.formatDate(r.data_desmontagem) : ''}</span>
+            <div style="display:flex;gap:6px;flex-shrink:0">
+              <button class="btn-edit" onclick="App.abrirEdicao('${id}')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>EDITAR
+              </button>
+              <button class="btn-del" onclick="App.excluir('${id}')">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>`;
+    }).join('');
+  },
+
+  renderResumo(regs, filtroPlanta) {
+    // Totais gerais
+    const todos = filtroPlanta ? regs.filter(r => r.planta === filtroPlanta) : regs;
+    document.getElementById('s-total').textContent = todos.length;
+    document.getElementById('s-montados').textContent = todos.filter(r => r.situacao === 'MONTADO').length;
+    document.getElementById('s-desmontados').textContent = todos.filter(r => r.situacao === 'DESMONTADO').length;
+    document.getElementById('s-pendentes').textContent = todos.filter(r => r.situacao === 'PENDENTE').length;
+    document.getElementById('s-m2').textContent = todos.reduce((s,r) => s+(parseFloat(r.m2)||0), 0).toFixed(1);
+    document.getElementById('s-m3').textContent = todos.reduce((s,r) => s+(parseFloat(r.m3)||0), 0).toFixed(1);
+    document.getElementById('s-ml').textContent = todos.reduce((s,r) => s+(parseFloat(r.ml)||0), 0).toFixed(1);
+    document.getElementById('s-resp').textContent = new Set(todos.map(r => r.responsavel).filter(Boolean)).size;
+
+    // Atualiza chips de plantas
+    const plantas = [...new Set(regs.map(r => r.planta).filter(Boolean))].sort();
+    const pRow = document.getElementById('planta-filter-row');
+    pRow.innerHTML = `<button class="planta-chip${!filtroPlanta?' active':''}" onclick="setFiltroPlantaResumo('',this)">Todas plantas</button>` +
+      plantas.map(p => `<button class="planta-chip${filtroPlanta===p?' active':''}" onclick="setFiltroPlantaResumo('${Utils.sanitize(p)}',this)">${Utils.sanitize(p)}</button>`).join('');
+
+    // Resumo por CC
+    const container = document.getElementById('cc-resumo-container');
+    container.innerHTML = ['MAN','ENG','OPE'].map(ccKey => {
+      const cc = CONFIG.CC[ccKey];
+      const ccRegs = todos.filter(r => r.cc === ccKey);
+      if (!ccRegs.length) return `<div class="cc-section"><div class="cc-section-head"><span class="cc-section-title ${cc.cls}">${cc.label}</span><span class="cc-section-count">0 registros</span></div><div style="font-size:12px;color:var(--text3);text-align:center;padding:8px">Nenhum registro</div></div>`;
+
+      // Agrupa por planta dentro do CC
+      const byPlanta = {};
+      ccRegs.forEach(r => {
+        const p = r.planta || 'Sem planta';
+        if (!byPlanta[p]) byPlanta[p] = { total:0, montado:0, pendente:0, desmontado:0, m2:0, m3:0, ml:0 };
+        byPlanta[p].total++;
+        if (r.situacao==='MONTADO') byPlanta[p].montado++;
+        if (r.situacao==='PENDENTE') byPlanta[p].pendente++;
+        if (r.situacao==='DESMONTADO') byPlanta[p].desmontado++;
+        byPlanta[p].m2 += parseFloat(r.m2)||0;
+        byPlanta[p].m3 += parseFloat(r.m3)||0;
+        byPlanta[p].ml += parseFloat(r.ml)||0;
+      });
+
+      const totalM2 = ccRegs.reduce((s,r) => s+(parseFloat(r.m2)||0), 0);
+      const totalM3 = ccRegs.reduce((s,r) => s+(parseFloat(r.m3)||0), 0);
+      const totalMontados = ccRegs.filter(r => r.situacao==='MONTADO').length;
+      const totalPendentes = ccRegs.filter(r => r.situacao==='PENDENTE').length;
+      const maxTotal = Math.max(...Object.values(byPlanta).map(v => v.total), 1);
+
+      const plantaRows = Object.entries(byPlanta).sort((a,b) => b[1].total-a[1].total).map(([p,v]) => `
+        <div class="planta-row">
+          <div style="flex:1">
+            <div class="planta-row-name">${Utils.sanitize(p)}</div>
+            <div class="planta-row-stats">
+              ${v.montado ? `<span style="color:var(--info)">${v.montado} mont.</span>` : ''}
+              ${v.pendente ? `<span style="color:var(--warn)">${v.pendente} pend.</span>` : ''}
+              ${v.m2>0 ? `<span>${v.m2.toFixed(1)}m²</span>` : ''}
+              ${v.m3>0 ? `<span>${v.m3.toFixed(1)}m³</span>` : ''}
+            </div>
+            <div class="planta-bar-wrap"><div class="planta-bar"><div class="planta-bar-fill" style="width:${Math.round(v.total/maxTotal*100)}%;background:var(--cc-${cc.cls})"></div></div></div>
+          </div>
+          <div style="font-size:13px;font-weight:700;font-family:var(--display);color:var(--text2);margin-left:12px">${v.total}</div>
+        </div>`).join('');
+
+      return `
+        <div class="cc-section">
+          <div class="cc-section-head">
+            <span class="cc-section-title ${cc.cls}">${cc.label}</span>
+            <span class="cc-section-count">${ccRegs.length} registros</span>
+          </div>
+          <div class="cc-mini-grid">
+            <div class="cc-mini"><div class="cc-mini-val" style="color:var(--cc-${cc.cls})">${ccRegs.length}</div><div class="cc-mini-label">Total</div></div>
+            <div class="cc-mini"><div class="cc-mini-val" style="color:var(--info)">${totalMontados}</div><div class="cc-mini-label">Montados</div></div>
+            <div class="cc-mini"><div class="cc-mini-val" style="color:var(--warn)">${totalPendentes}</div><div class="cc-mini-label">Pendentes</div></div>
+            <div class="cc-mini"><div class="cc-mini-val">${totalM2.toFixed(1)}</div><div class="cc-mini-label">M²</div></div>
+            <div class="cc-mini"><div class="cc-mini-val">${totalM3.toFixed(1)}</div><div class="cc-mini-label">M³</div></div>
+            <div class="cc-mini"><div class="cc-mini-val">${new Set(ccRegs.map(r=>r.responsavel).filter(Boolean)).size}</div><div class="cc-mini-label">Técnicos</div></div>
+          </div>
+          <div>${plantaRows}</div>
+        </div>`;
+    }).join('');
+  },
+};
+
+// ─── APP ──────────────────────────────────────────────────────────
+const App = {
+  regs: [],
+  editandoId: null,
+  filtroCC: '',
+  filtroSit: '',
+  filtroPlantaResumo: '',
+  fotoBase64: '',
+  ccAtivo: null,
+
+  async init() {
+    this.regs = Storage.load();
+    UI.atualizarContador(this.regs.length);
+    UI.atualizarHome(this.regs);
+    UI.setSyncDot('loading');
+    // Carrega cada CC do Sheets em paralelo
+    try {
+      const [man, eng, ope] = await Promise.all([
+        Sheets.loadCC('MAN'),
+        Sheets.loadCC('ENG'),
+        Sheets.loadCC('OPE'),
+      ]);
+      const sheetsRegs = [...man, ...eng, ...ope];
+      if (sheetsRegs.length > 0) {
+        const fotoMap = {};
+        this.regs.forEach(r => { if (r.foto) fotoMap[r.id] = r.foto; });
+        this.regs = sheetsRegs.map(r => Object.assign(r, { foto: fotoMap[r.id] || '' }));
+        Storage.save(this.regs);
+      }
+      UI.setSyncDot('ok');
+    } catch (e) {
+      UI.setSyncDot('err');
+      UI.toast('SEM CONEXAO - USANDO DADOS LOCAIS', 'err');
+    }
+    UI.atualizarContador(this.regs.length);
+    UI.atualizarHome(this.regs);
+  },
+
+  lerFormulario() {
+    return {
+      cc: this.ccAtivo,
+      ssa: document.getElementById('ssa').value.trim(),
+      os: document.getElementById('os').value.trim(),
+      planta: document.getElementById('planta').value,
+      tag: document.getElementById('tag').value.trim(),
+      caracteristica: document.getElementById('caracteristica').value,
+      responsavel: document.getElementById('responsavel').value.trim(),
+      l: document.getElementById('largura').value,
+      c: document.getElementById('comprimento').value,
+      a: document.getElementById('altura').value,
+      plt_extra: document.getElementById('plt_extra').value,
+      m2: document.getElementById('m2').value,
+      m3: document.getElementById('m3').value,
+      ml: document.getElementById('ml').value,
+      data_solicitacao: document.getElementById('data_solicitacao').value,
+      data_montagem: document.getElementById('data_montagem').value,
+      data_baixa: document.getElementById('data_baixa').value,
+      data_desmontagem: document.getElementById('data_desmontagem').value,
+      situacao: document.getElementById('situacao').value,
+      obs: document.getElementById('obs').value.trim(),
+      foto: this.fotoBase64,
+    };
+  },
+
+  validar(dados) {
+    if (!dados.tag) { UI.toast('PREENCHA O TAG / EQUIPAMENTO', 'err'); return false; }
+    if (!Utils.validarDimensao(dados.l,'LARGURA')) return false;
+    if (!Utils.validarDimensao(dados.c,'COMPRIMENTO')) return false;
+    if (!Utils.validarDimensao(dados.a,'ALTURA')) return false;
+    return true;
+  },
+
+  async salvar() {
+    const dados = this.lerFormulario();
+    if (!this.validar(dados)) return;
+    const btn = document.getElementById('btn-salvar');
+    btn.disabled = true; btn.textContent = 'SALVANDO...';
+
+    if (this.editandoId !== null) {
+      const idx = this.regs.findIndex(r => r.id === this.editandoId);
+      if (idx !== -1) {
+        this.regs[idx] = Object.assign(this.regs[idx], dados, { sincronizado: false });
+        Storage.save(this.regs);
+        const ok = await Sheets.update(this.regs[idx]);
+        this.regs[idx].sincronizado = ok;
+        Storage.save(this.regs);
+        UI.toast(ok ? 'SSA ATUALIZADA!' : 'SALVO LOCAL - SEM CONEXAO', ok ? 'ok' : 'err');
+      }
+    } else {
+      Storage.saveSSACounter(dados.cc, parseInt(dados.ssa) || 0);
+      const reg = Object.assign({ id: Utils.uuid(), sincronizado: false }, dados);
+      this.regs.push(reg);
+      Storage.save(this.regs);
+      const ok = await Sheets.insert(reg);
+      reg.sincronizado = ok;
+      Storage.save(this.regs);
+      UI.toast(ok ? `SSA ${dados.ssa} SALVA!` : 'SALVO LOCAL - SEM CONEXAO', ok ? 'ok' : 'err');
+    }
+
+    btn.disabled = false;
+    btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Salvar e sincronizar';
+    UI.atualizarContador(this.regs.length);
+    voltarHome();
+  },
+
+  abrirEdicao(id) {
+    const r = this.regs.find(x => x.id === id);
+    if (!r) return;
+    this.editandoId = id;
+    this.ccAtivo = r.cc;
+    limparCampos();
+    const map = { largura:'l', comprimento:'c', altura:'a' };
+    ['ssa','os','planta','responsavel','tag','caracteristica','largura','comprimento','altura',
+     'plt_extra','ml','m2','m3','data_solicitacao','data_montagem','data_baixa','data_desmontagem','situacao','obs'].forEach(fid => {
+      const key = map[fid] || fid;
+      const el = document.getElementById(fid);
+      if (el) el.value = r[key] || '';
+    });
+    if (r.foto) {
+      this.fotoBase64 = r.foto;
+      document.getElementById('photo-img').src = r.foto;
+      document.getElementById('photo-placeholder').style.display = 'none';
+      document.getElementById('photo-preview').style.display = 'block';
+    }
+    const banner = document.getElementById('form-banner');
+    banner.className = 'form-banner edit';
+    banner.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Editando SSA — ${CONFIG.CC[r.cc]?.label || r.cc}`;
+    document.getElementById('btn-salvar').classList.add('edit-mode');
+    document.getElementById('btn-salvar').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> Salvar alterações';
+    showPage('novo');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  },
+
+  excluir(id) {
+    if (!confirm('Excluir este registro?')) return;
+    this.regs = this.regs.filter(r => r.id !== id);
+    Storage.save(this.regs);
+    UI.atualizarContador(this.regs.length);
+    UI.atualizarFiltroResp(this.regs);
+    UI.renderLista();
+  },
+
+  exportarExcel() {
+    const lista = UI.filtrar(this.regs);
+    if (!lista.length) { UI.toast('NENHUM REGISTRO PARA EXPORTAR', 'err'); return; }
+    const data = lista.map((r,i) => ({
+      'N°': i+1, 'Centro de Custo': CONFIG.CC[r.cc]?.label || r.cc,
+      'SSA Nº': r.ssa, 'OS': r.os, 'Planta': r.planta, 'TAG': r.tag,
+      'Característica': r.caracteristica, 'Responsável': r.responsavel,
+      'L': r.l, 'C': r.c, 'A': r.a, 'Plt Extra': r.plt_extra,
+      'M²': r.m2, 'M³': r.m3, 'ML': r.ml,
+      'Data Solicitação': r.data_solicitacao, 'Data Montagem': r.data_montagem,
+      'Baixa Locação': r.data_baixa, 'Data Desmontagem': r.data_desmontagem,
+      'Situação': r.situacao, 'OBS': r.obs, 'Foto': r.foto ? 'SIM' : 'NÃO',
+    }));
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Andaimes Solae');
+    XLSX.writeFile(wb, `Andaimes_Solae_${new Date().toISOString().slice(0,10)}.xlsx`);
+  },
+
+  limparTudo() {
+    if (!confirm(`Apagar TODOS os ${this.regs.length} registros locais?`)) return;
+    this.regs = []; Storage.save(this.regs);
+    UI.atualizarContador(0); UI.renderResumo([], '');
+    UI.toast('REGISTROS APAGADOS', 'ok');
+  },
+};
+
+// ─── NAVEGAÇÃO ────────────────────────────────────────────────────
+function showPage(p) {
+  document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+  document.getElementById('p-' + p).classList.add('active');
+}
+
+function navTo(p) {
+  showPage(p);
+  document.querySelectorAll('.navbtn').forEach(x => x.classList.remove('active'));
+  const nb = document.getElementById('nav-' + p);
+  if (nb) nb.classList.add('active');
+  if (p === 'lista') { UI.atualizarFiltroResp(App.regs); UI.renderLista(); }
+  if (p === 'resumo') UI.renderResumo(App.regs, App.filtroPlantaResumo);
+  if (p === 'home') UI.atualizarHome(App.regs);
+}
+
+function irParaNovo(cc) {
+  App.editandoId = null;
+  App.ccAtivo = cc;
+  limparCampos();
+  const num = Storage.proximaSSA(cc);
+  document.getElementById('ssa').value = num;
+  const cc_info = CONFIG.CC[cc];
+  const banner = document.getElementById('form-banner');
+  banner.className = `form-banner new-${cc_info.cls}`;
+  banner.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg> Nova SSA — ${cc_info.label} · Nº ${num}`;
+  document.getElementById('btn-salvar').classList.remove('edit-mode');
+  document.getElementById('btn-salvar').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Salvar e sincronizar';
+  document.getElementById('data_solicitacao').value = new Date().toISOString().slice(0,10);
+  document.getElementById('situacao').value = 'PENDENTE';
+  showPage('novo');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function irParaEdicao() {
+  navTo('lista');
+  setTimeout(() => { const inp = document.getElementById('busca'); if (inp) inp.focus(); }, 200);
+}
+
+function voltarHome() { App.editandoId = null; App.ccAtivo = null; navTo('home'); }
+
+function setChipCC(el, val) {
+  App.filtroCC = val;
+  document.querySelectorAll('#chips-cc .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  UI.renderLista();
+}
+
+function setChipSit(el, val) {
+  App.filtroSit = val;
+  document.querySelectorAll('#chips-sit .chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  UI.renderLista();
+}
+
+function setFiltroPlantaResumo(planta, el) {
+  App.filtroPlantaResumo = planta;
+  document.querySelectorAll('.planta-chip').forEach(c => c.classList.remove('active'));
+  el.classList.add('active');
+  UI.renderResumo(App.regs, planta);
+}
+
+// ─── FORMULÁRIO ───────────────────────────────────────────────────
+function calcDims() {
+  const l = parseFloat(document.getElementById('largura').value) || 0;
+  const c = parseFloat(document.getElementById('comprimento').value) || 0;
+  const a = parseFloat(document.getElementById('altura').value) || 0;
+  const p = parseFloat(document.getElementById('plt_extra').value) || 0;
+  document.getElementById('m2').value = (l*c+p) > 0 ? (l*c+p).toFixed(4) : '';
+  document.getElementById('m3').value = (l*c*a) > 0 ? (l*c*a).toFixed(4) : '';
+}
+
+function limparCampos() {
+  App.fotoBase64 = '';
+  ['os','tag','responsavel','largura','comprimento','altura','plt_extra','ml','m2','m3','obs',
+   'data_solicitacao','data_montagem','data_baixa','data_desmontagem'].forEach(id => {
+    const e = document.getElementById(id); if (e) e.value = '';
+  });
+  document.getElementById('planta').selectedIndex = 0;
+  document.getElementById('caracteristica').selectedIndex = 0;
+  document.getElementById('situacao').selectedIndex = 0;
+  document.getElementById('data_montagem').value = new Date().toISOString().slice(0,10);
+  removerFoto();
+}
+
+function carregarFoto(input) {
+  const file = input.files[0]; if (!file) return;
+  if (file.size > CONFIG.FOTO_MAX_BYTES) { UI.toast('FOTO MUITO GRANDE — MAX 1MB', 'err'); input.value = ''; return; }
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const max = 800; let w = img.width, h = img.height;
+      if (w > max) { h = h*max/w; w = max; } if (h > max) { w = w*max/h; h = max; }
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      App.fotoBase64 = canvas.toDataURL('image/jpeg', 0.7);
+      document.getElementById('photo-img').src = App.fotoBase64;
+      document.getElementById('photo-placeholder').style.display = 'none';
+      document.getElementById('photo-preview').style.display = 'block';
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file); input.value = '';
+}
+
+function removerFoto() {
+  App.fotoBase64 = '';
+  document.getElementById('photo-img').src = '';
+  document.getElementById('photo-placeholder').style.display = 'flex';
+  document.getElementById('photo-preview').style.display = 'none';
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────
+(async () => { await App.init(); })();
+</script>
+</body>
+</html>
